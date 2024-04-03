@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::ops::{Add, Index, IndexMut};
 
+/// A circular array that allows infinite pushes into a fixed-size array.
 #[derive(Debug)]
 pub struct CircularArray<const N: usize, T> {
     arr: [T;N],
@@ -17,6 +18,25 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
         }
     }
 
+    /// # example
+    /// ```
+    ///     #[test]
+    ///     #[allow(non_snake_case)]
+    ///     fn test_Index_and_IndexMut() {
+    ///             let mut arr = CircularArray::<3, u32>::new();
+    ///             arr.push(0);
+    ///             arr.push(0);
+    ///             arr.push(0);
+    ///             arr.push(0);
+    ///             arr.push(0);
+    ///             arr[0] = 1;
+    ///             arr[1] = 2;
+    ///             arr[2] = 3;
+    ///             assert_eq!(arr[0], 1);
+    ///             assert_eq!(arr[1], 2);
+    ///             assert_eq!(arr[2], 3);
+    ///         }
+
     pub fn push(&mut self, item: T) {
         if self.seq >= N {
             self.arr[self.start] = item;
@@ -27,6 +47,19 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
         self.seq += 1;
     }
 
+    /// ## Examples
+    /// ```
+    ///     #[test]
+    ///     fn test_to_array() {
+    ///         let mut arr = CircularArray::<3, u32>::new();
+    ///         arr.push(1);
+    ///         arr.push(2);
+    ///         arr.push(3);
+    ///         assert_eq!(arr.to_array(), [1, 2, 3]);
+    ///         arr.push(4);
+    ///         assert_eq!(arr.to_array(), [2, 3, 4]);
+    ///     }
+    /// ```
     pub fn to_array(&self) -> [T;N] {
         unsafe {
             let mut arr = [T::default(); N];
