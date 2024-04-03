@@ -39,7 +39,6 @@ mod test {
         arr.push(2);
         arr.push(3);
         let mut iter: CircularArrayIter<3, u32> = arr.iter();
-        println!("{:?}", arr);
         assert_eq!(iter.next(), Some(&1));
         assert_eq!(iter.next(), Some(&2));
         assert_eq!(iter.next(), Some(&3));

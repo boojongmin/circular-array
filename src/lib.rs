@@ -38,10 +38,8 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Di
 
     pub fn push(&mut self, item: T) {
         if self.seq >= N {
-            println!("1 {}", item);
             self.arr[self.start] = item;
         } else {
-            println!("2");
             self.arr[self.seq] = item;
         }
         self.start = (self.start + 1) % N;
@@ -94,6 +92,33 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Di
     /// ```
     pub fn iter(&self) -> CircularArrayIter<N, T> {
         CircularArrayIter::new(&self)
+    }
+
+
+    /// # Example
+    /// ```
+    /// use circular_array::CircularArray;
+    /// #[test]
+    /// fn test_last() {
+    ///     let mut arr = CircularArray::<3, u32>::new();
+    ///     assert_eq!(arr.last(), None);
+    ///     arr.push(1);
+    ///     assert_eq!(arr.last(), Some(1).as_ref());
+    ///     arr.push(2);
+    ///     arr.push(3);
+    ///     arr.push(4);
+    ///     assert_eq!(arr.last(), Some(4).as_ref());
+    /// }
+    /// ```
+
+    pub fn last(&self) -> Option<&T> {
+        if self.seq >= N  {
+            Some(&self[N-1])
+        } else if self.seq > 0 {
+            Some(&self[self.seq -1])
+        } else {
+            None
+        }
     }
 }
 
@@ -167,6 +192,18 @@ mod tests {
         assert_eq!(arr.to_array(), [1, 2, 3]);
         arr.push(4);
         assert_eq!(arr.to_array(), [2, 3, 4]);
+    }
+
+    #[test]
+    fn test_last() {
+        let mut arr = CircularArray::<3, u32>::new();
+        assert_eq!(arr.last(), None);
+        arr.push(1);
+        assert_eq!(arr.last(), Some(1).as_ref());
+        arr.push(2);
+        arr.push(3);
+        arr.push(4);
+        assert_eq!(arr.last(), Some(4).as_ref());
     }
 }
 
