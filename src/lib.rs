@@ -1,5 +1,8 @@
-use std::fmt::Debug;
+pub mod iter;
+
+use std::fmt::{Debug, Display};
 use std::ops::{Add, Index, IndexMut};
+use crate::iter::CircularArrayIter;
 
 /// A circular array that allows infinite pushes into a fixed-size array.
 #[derive(Debug)]
@@ -9,7 +12,7 @@ pub struct CircularArray<const N: usize, T> {
     seq: usize,
 }
 
-impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
+impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Display {
     pub fn new() -> Self {
         Self {
             arr: [T::default(); N],
@@ -20,27 +23,25 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
 
     /// # example
     /// ```
-    ///     #[test]
-    ///     #[allow(non_snake_case)]
-    ///     fn test_Index_and_IndexMut() {
-    ///             let mut arr = CircularArray::<3, u32>::new();
-    ///             arr.push(0);
-    ///             arr.push(0);
-    ///             arr.push(0);
-    ///             arr.push(0);
-    ///             arr.push(0);
-    ///             arr[0] = 1;
-    ///             arr[1] = 2;
-    ///             arr[2] = 3;
-    ///             assert_eq!(arr[0], 1);
-    ///             assert_eq!(arr[1], 2);
-    ///             assert_eq!(arr[2], 3);
-    ///         }
+    /// use circular_array::CircularArray;
+    /// #[test]
+    /// fn test_push() {
+    ///     let mut arr = CircularArray::<3, u32>::new();
+    ///     arr.push(1);
+    ///     arr.push(2);
+    ///     arr.push(3);
+    ///     assert_eq!(arr.to_array(), [1, 2, 3]);
+    ///     arr.push(4);
+    ///     assert_eq!(arr.to_array(), [2, 3, 4]);
+    /// }
+    /// ```
 
     pub fn push(&mut self, item: T) {
         if self.seq >= N {
+            println!("1 {}", item);
             self.arr[self.start] = item;
         } else {
+            println!("2");
             self.arr[self.seq] = item;
         }
         self.start = (self.start + 1) % N;
@@ -49,7 +50,8 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
 
     /// ## Examples
     /// ```
-    ///     #[test]
+    ///     use circular_array::CircularArray;
+    /// #[test]
     ///     fn test_to_array() {
     ///         let mut arr = CircularArray::<3, u32>::new();
     ///         arr.push(1);
@@ -75,6 +77,23 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
             }
             arr
         }
+    }
+
+    /// # example
+    /// ```
+    /// use circular_array::CircularArray;
+    /// let mut arr = CircularArray::<3, u32>::new();
+    /// arr.push(1);
+    /// arr.push(2);
+    /// arr.push(3);
+    /// let mut iter: circular_array::iter::CircularArrayIter<3, u32> = arr.iter();
+    /// assert_eq!(iter.next(), Some(&1));
+    /// assert_eq!(iter.next(), Some(&2));
+    /// assert_eq!(iter.next(), Some(&3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    pub fn iter(&self) -> CircularArrayIter<N, T> {
+        CircularArrayIter::new(&self)
     }
 }
 
@@ -118,8 +137,8 @@ mod tests {
         arr.push(2);
         arr.push(3);
         assert_eq!(arr.arr, [1, 2, 3]);
-        arr.push(3);
-        assert_eq!(arr.arr, [2, 3, 4]);
+        arr.push(4);
+        assert_eq!(arr.arr, [4, 2, 3]);
     }
 
     #[test]
