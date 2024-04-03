@@ -1,0 +1,13 @@
+[package]
+name = "circular-array"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+keywords = ["circular", "array"]
+description = "A circular array that allows infinite pushes into a fixed-size array."
+readme = "README.md"
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
