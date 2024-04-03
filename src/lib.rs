@@ -2,14 +2,14 @@ use std::fmt::Debug;
 use std::ops::{Add, Index, IndexMut};
 
 #[derive(Debug)]
-struct CircularArray<const N: usize, T> {
+pub struct CircularArray<const N: usize, T> {
     arr: [T;N],
     start: usize,
     seq: usize,
 }
 
 impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             arr: [T::default(); N],
             start: 0,
@@ -17,7 +17,7 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
         }
     }
 
-    fn push(&mut self, item: T) {
+    pub fn push(&mut self, item: T) {
         if self.seq >= N {
             self.arr[self.start] = item;
         } else {
@@ -27,7 +27,7 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug {
         self.seq += 1;
     }
 
-    fn to_array(&self) -> [T;N] {
+    pub fn to_array(&self) -> [T;N] {
         unsafe {
             let mut arr = [T::default(); N];
 
