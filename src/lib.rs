@@ -9,7 +9,7 @@ use crate::iter::CircularArrayIter;
 pub struct CircularArray<const N: usize, T> {
     arr: [T;N],
     start: usize,
-    seq: usize,
+    len: usize,
 }
 
 impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Display {
@@ -17,7 +17,7 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Di
         Self {
             arr: [T::default(); N],
             start: 0,
-            seq: 0,
+            len: 0,
         }
     }
 
@@ -37,13 +37,13 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Di
     /// ```
 
     pub fn push(&mut self, item: T) {
-        if self.seq >= N {
+        if self.len >= N {
             self.arr[self.start] = item;
         } else {
-            self.arr[self.seq] = item;
+            self.arr[self.len] = item;
         }
         self.start = (self.start + 1) % N;
-        self.seq += 1;
+        self.len += 1;
     }
 
     /// ## Examples
@@ -67,7 +67,7 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Di
             let src_ptr = self.arr.as_ptr();
             let dest_ptr = arr.as_mut_ptr();
 
-            if self.seq >= N && self.start > 0 {
+            if self.len >= N && self.start > 0 {
                 std::ptr::copy_nonoverlapping(src_ptr.add(self.start), dest_ptr, N - self.start);
                 std::ptr::copy_nonoverlapping(src_ptr, dest_ptr.add(N - self.start), N - self.start);
             } else {
@@ -110,15 +110,18 @@ impl<const N: usize, T> CircularArray<N, T> where T: Copy + Default + Debug + Di
     ///     assert_eq!(arr.last(), Some(4).as_ref());
     /// }
     /// ```
-
     pub fn last(&self) -> Option<&T> {
-        if self.seq >= N  {
+        if self.len >= N  {
             Some(&self[N-1])
-        } else if self.seq > 0 {
-            Some(&self[self.seq -1])
+        } else if self.len > 0 {
+            Some(&self[self.len -1])
         } else {
             None
         }
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
     }
 }
 
@@ -129,7 +132,7 @@ impl<T, const N: usize> Index<usize> for CircularArray<N, T> where [T]: Index<us
 
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
-        if self.seq >= N {
+        if self.len >= N {
             &self.arr[(self.start + index) % N]
         } else {
             &self.arr[index]
@@ -143,7 +146,7 @@ impl<T, const N: usize> IndexMut<usize> for CircularArray<N, T>
 
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        if self.seq >= N {
+        if self.len >= N {
             &mut self.arr[(self.start + index) % N]
         } else {
             &mut self.arr[index]
@@ -204,6 +207,18 @@ mod tests {
         arr.push(3);
         arr.push(4);
         assert_eq!(arr.last(), Some(4).as_ref());
+    }
+
+    #[test]
+    fn test_len() {
+        let mut arr = CircularArray::<3, u32>::new();
+        assert_eq!(arr.len(), 0);
+        arr.push(1);
+        assert_eq!(arr.len(), 1);
+        arr.push(2);
+        arr.push(3);
+        arr.push(4);
+        assert_eq!(arr.len(), 4);
     }
 }
 

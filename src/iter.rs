@@ -19,7 +19,7 @@ impl<'a, const N: usize, T> Iterator for CircularArrayIter<'a, N, T> where T: De
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let r = if self.index < self.circular_array.seq {
+        let r = if self.index < self.circular_array.len {
             Some(&self.circular_array[self.index])
         } else {
             None
